@@ -51,3 +51,15 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"pk": self.id})
+
+    @property
+    def is_client(self) -> bool:
+        return self.type == self.UserType.USER
+
+    @property
+    def is_seller(self) -> bool:
+        return self.type == self.UserType.SELLER
+
+    @property
+    def is_admin_system(self) -> bool:
+        return self.type == self.UserType.ADMIN

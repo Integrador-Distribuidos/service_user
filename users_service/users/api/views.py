@@ -1,28 +1,22 @@
-from rest_framework import status
+from rest_framework import status, permissions, viewsets
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin
-from rest_framework.mixins import RetrieveModelMixin
-from rest_framework.mixins import UpdateModelMixin
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
 
 from users_service.users.models import User
+from .serializers import UserSerializer, UserCreateSerializer
 
-from .serializers import UserSerializer
 
-
-class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
-    serializer_class = UserSerializer
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     lookup_field = "pk"
+    permission_classes = []
 
-    '''def get_queryset(self, *args, **kwargs):
-        user = self.request.user
-        if user.is_staff or user.is_superuser:
-            return self.queryset
-        return self.queryset.filter(id=user.id)'''
+    def get_serializer_class(self):
+        if self.action == "create":
+            return UserCreateSerializer
+        return UserSerializer
 
-    @action(detail=False)
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
-        serializer = UserSerializer(request.user, context={"request": request})
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
