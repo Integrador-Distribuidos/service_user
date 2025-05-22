@@ -9,12 +9,16 @@ from .serializers import UserSerializer, UserCreateSerializer
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     lookup_field = "pk"
-    permission_classes = []
 
     def get_serializer_class(self):
         if self.action == "create":
             return UserCreateSerializer
         return UserSerializer
+    
+    def get_permissions(self):
+        if self.action == "create":
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):

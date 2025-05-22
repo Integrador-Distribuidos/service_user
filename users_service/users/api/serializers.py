@@ -1,15 +1,22 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer,ValidationError
 from rest_framework import serializers
 
 from users_service.users.models import User
 
 
 class UserSerializer(ModelSerializer):
+    email = serializers.EmailField()
     class Meta:
         model = User
         fields = ["id", "first_name", "last_name", "email", "city", "uf", "zip_code", "address", "type",]
 
         read_only_fields = ["id", "type"]
+
+    def validate_email(self, value):
+        user = self.instance
+        if user and User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError("Esse email já está sendo usado por outro usuário.")
+        return value
 
 class UserCreateSerializer(ModelSerializer):
     class Meta:
