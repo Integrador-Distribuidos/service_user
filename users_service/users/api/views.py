@@ -1,10 +1,8 @@
 from rest_framework import status, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
 from users_service.users.models import User
 from .serializers import UserSerializer, UserCreateSerializer
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

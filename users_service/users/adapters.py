@@ -38,11 +38,9 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         See: https://docs.allauth.org/en/latest/socialaccount/advanced.html#creating-and-populating-user-instances
         """
         user = super().populate_user(request, sociallogin, data)
-        if not user.name:
-            if name := data.get("name"):
-                user.name = name
-            elif first_name := data.get("first_name"):
-                user.name = first_name
-                if last_name := data.get("last_name"):
-                    user.name += f" {last_name}"
+        extra_data = sociallogin.account.extra_data
+
+        user.first_name = extra_data.get("given_name", "")
+        user.last_name = extra_data.get("family_name", "")
+        user.email = extra_data.get("email", "")
         return user

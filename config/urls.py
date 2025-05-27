@@ -11,6 +11,12 @@ from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+'''from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from dj_rest_auth.registration.views import SocialLoginView
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter'''
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
@@ -39,6 +45,11 @@ urlpatterns += [
     #JWT
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    #Google auth
+    #path('api/auth/', include('dj_rest_auth.urls')),
+    #path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    #path("api/dj-rest-auth/social/", include("allauth.socialaccount.urls")),
+    #path('api/auth/google/', GoogleLogin.as_view(), name='google_login'),
     # DRF auth token
     path("api/auth-token/", obtain_auth_token, name="obtain_auth_token"),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
