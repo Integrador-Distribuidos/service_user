@@ -8,7 +8,7 @@ class UserSerializer(ModelSerializer):
     email = serializers.EmailField()
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "city", "uf", "zip_code", "address", "type",]
+        fields = ["id", "first_name", "last_name", "cpf" ,"email", "type",]
 
         read_only_fields = ["id", "type"]
 
@@ -22,7 +22,7 @@ class UserCreateSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "first_name", "last_name", "email", "password", "city", "uf", "zip_code", "address"]
+            "first_name", "last_name", "cpf" ,"email", "password"]
         
         extra_kwargs = {
             "password": {"write_only": True},
@@ -34,10 +34,7 @@ class UserCreateSerializer(ModelSerializer):
             password=validated_data["password"],
             first_name=validated_data.get("first_name", ""),
             last_name=validated_data.get("last_name", ""),
-            city=validated_data.get("city", ""),
-            uf=validated_data.get("uf", ""),
-            zip_code=validated_data.get("zip_code", ""),
-            address=validated_data.get("address", ""),
-            type=User.UserType.USER
+            cpf=validated_data.get("cpf", ""),
+            type=User.UserType.CLIENT
         )
         return user
