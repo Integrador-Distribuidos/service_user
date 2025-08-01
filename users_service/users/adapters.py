@@ -1,46 +1,37 @@
-from __future__ import annotations
-
-import typing
-
-from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from django.conf import settings
+from allauth.account.adapter import DefaultAccountAdapter
+from allauth.exceptions import ImmediateHttpResponse
+from django.http import JsonResponse
+from allauth.account.utils import user_email
+import logging
 
-if typing.TYPE_CHECKING:
-    from allauth.socialaccount.models import SocialLogin
-    from django.http import HttpRequest
-
-    from users_service.users.models import User
-
+logger = logging.getLogger(__name__)
 
 class AccountAdapter(DefaultAccountAdapter):
-    def is_open_for_signup(self, request: HttpRequest) -> bool:
-        return getattr(settings, "ACCOUNT_ALLOW_REGISTRATION", True)
-
+    pass
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
-    def is_open_for_signup(
-        self,
-        request: HttpRequest,
-        sociallogin: SocialLogin,
-    ) -> bool:
-        return getattr(settings, "ACCOUNT_ALLOW_REGISTRATION", True)
-
-    def populate_user(
-        self,
-        request: HttpRequest,
-        sociallogin: SocialLogin,
-        data: dict[str, typing.Any],
-    ) -> User:
+    def pre_social_login(self, request, sociallogin):
         """
-        Populates user information from social provider info.
-
-        See: https://docs.allauth.org/en/latest/socialaccount/advanced.html#creating-and-populating-user-instances
+        Este método é chamado antes do login social acontecer.
+        Aqui, verificamos se o email do login social já existe.
+        Se sim, conectamos o social account ao user existente.
         """
-        user = super().populate_user(request, sociallogin, data)
-        extra_data = sociallogin.account.extra_data
+        email = user_email(sociallogin.user)
+        
+        if not email:
+            logger.warning("Login social sem email.")
+            return  
 
-        user.first_name = extra_data.get("given_name", "")
-        user.last_name = extra_data.get("family_name", "")
-        user.email = extra_data.get("email", "")
-        return user
+        user = self.get_user(email=email)
+
+        if user:
+            if user.is_active:
+                logger.info(f"Usuário {user.email} já existe. Conectando ao login social.")
+                sociallogin.connect(request, user)
+            else:
+                logger.error(f"Tentativa de login social com um usuário inativo: {user.email}")
+                raise ImmediateHttpResponse(JsonResponse({"detail": "Usuário está inativo."}, status=400))
+        else:
+            logger.info(f"Nenhum usuário encontrado para o e-mail {email}. Criando novo usuário.")
+            sociallogin.save(request)
