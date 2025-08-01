@@ -73,6 +73,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "users_service.users",
+    "users_service.addresses",
     # Your stuff: custom apps go here
 ]
 
