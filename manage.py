@@ -21,7 +21,8 @@ def main():
     # This allows easy placement of apps within the interior
     # users_service directory.
     current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "users_service"))
+    # sys.path.append(str(current_path / "users_service"))
+    sys.path.append(str(current_path))
 
     execute_from_command_line(sys.argv)
 

@@ -10,12 +10,16 @@ from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from users_service.users.views import GoogleLoginView
 
-'''from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
 class GoogleLogin(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter'''
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "http://localhost:5173"
+    client_class = OAuth2Client
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -38,27 +42,26 @@ if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development
     urlpatterns += staticfiles_urlpatterns()
 
-# API URLS
 urlpatterns += [
-    # API base url
+    # API base
     path("api/", include("config.api_router")),
-    #JWT
+
+    # JWT Auth via SimpleJWT
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    #Google auth
-    #path('api/auth/', include('dj_rest_auth.urls')),
-    #path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
-    #path("api/dj-rest-auth/social/", include("allauth.socialaccount.urls")),
-    #path('api/auth/google/', GoogleLogin.as_view(), name='google_login'),
-    # DRF auth token
+    path("api/auth/google/", GoogleLoginView.as_view(), name="google_login_direct"),
+
+    # DRF authtoken (opcional, geralmente para login básico via token)
     path("api/auth-token/", obtain_auth_token, name="obtain_auth_token"),
+
+    # User-related endpoints (inclui login JWT customizado e Google login)
+    path("users/", include("users_service.users.urls", namespace="users")),
+
+    # API docs via drf-spectacular
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
-    path(
-        "api/docs/",
-        SpectacularSwaggerView.as_view(url_name="api-schema"),
-        name="api-docs",
-    ),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs"),
 ]
+
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
