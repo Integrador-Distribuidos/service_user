@@ -37,3 +37,20 @@ class UserViewSet(viewsets.ModelViewSet):
         user.save()
 
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["patch"], permission_classes=[permissions.IsAuthenticated])
+    def update_cpf(self, request, pk=None):
+        user = self.get_object()
+
+        if user.cpf:
+            return Response({"detail": "CPF já preenchido."}, status=status.HTTP_400_BAD_REQUEST)
+
+        cpf = request.data.get("cpf")
+        if not cpf or len(cpf) != 11:
+            return Response({"detail": "CPF inválido."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.cpf = cpf
+        user.save()
+
+        return Response({"detail": "CPF atualizado com sucesso!"}, status=status.HTTP_200_OK)
+    
