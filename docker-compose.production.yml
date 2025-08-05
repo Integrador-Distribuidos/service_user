@@ -7,14 +7,16 @@ volumes:
 
 services:
   django:
+    container_name: users_service_production_django
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-
-    image: users_service_production_django
+    image: marcosfln/users-service:latest
     depends_on:
       - postgres
       - redis
+    ports:
+      - '8001:8000'
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
