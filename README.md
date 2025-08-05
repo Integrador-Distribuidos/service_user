@@ -1,4 +1,4 @@
-# users_service
+# Stock2Sell - Serviço de usuários
 
 users service
 
@@ -7,48 +7,42 @@ users service
 
 License: MIT
 
-## Settings
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/nome-do-repositorio.git
+```
 
-Moved to [settings](https://cookiecutter-django.readthedocs.io/en/latest/1-getting-started/settings.html).
+2. Preencher os arquivos em .envs/.local/.django e .envs/.local/.postgres
+```
+.django:
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+DJANGO_DEBUG=True
+DATABASE_URL=postgres://usuario_banco:senha_banco@postgres:5432/users
 
-## Basic Commands
+.postgres:
+POSTGRES_HOST=
+POSTGRES_PORT=
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+```
 
-### Setting Up Your Users
+3. Buildar o projeto:
+```
+docker-compose -f docker-compose.local.yml up --build
+```
 
-- To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
+4. Comandos adicionais:
+```
+| Ação                          | Comando                                                                                           |
+| ----------------------------- | --------------------------------------------------------------------------------------------------|
+| Fazer as migrações            | `docker-compose -f docker-compose.local.yml exec django python manage.py migrate`                 |
+| Criar as migrações de um app  | `docker-compose -f docker-compose.local.yml exec django python manage.py makemigrations`          |
+| Criar superusuário            | `docker-compose -f docker-compose.local.yml exec django python manage.py createsuperuser`         |
+| Acessar o shell do Django     | `docker-compose -f docker-compose.local.yml exec django python manage.py shell`                   |
+| Acessar terminal do container | `docker-compose -f docker-compose.local.yml exec django bash`                                     |
+```
 
-- To create a **superuser account**, use this command:
 
-      $ python manage.py createsuperuser
-
-For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
-
-### Type checks
-
-Running type checks with mypy:
-
-    $ mypy users_service
-
-### Test coverage
-
-To run the tests, check your test coverage, and generate an HTML coverage report:
-
-    $ coverage run -m pytest
-    $ coverage html
-    $ open htmlcov/index.html
-
-#### Running tests with pytest
-
-    $ pytest
-
-### Live reloading and Sass CSS compilation
-
-Moved to [Live reloading and SASS compilation](https://cookiecutter-django.readthedocs.io/en/latest/2-local-development/developing-locally.html#using-webpack-or-gulp).
-
-## Deployment
-
-The following details how to deploy this application.
-
-### Docker
-
-See detailed [cookiecutter-django Docker documentation](https://cookiecutter-django.readthedocs.io/en/latest/3-deployment/deployment-with-docker.html).
