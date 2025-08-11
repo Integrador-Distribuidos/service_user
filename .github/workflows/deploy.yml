@@ -3,7 +3,7 @@ name: CI/CD Deploy
 on:
   push:
     branches:
-      - deploy  # disparar deploy só na branch deploy (ou main, ajuste se quiser)
+      - main  # disparar deploy só na branch deploy (ou main, ajuste se quiser)
 
 jobs:
   build-test-deploy:
