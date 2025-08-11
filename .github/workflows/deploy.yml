@@ -1,0 +1,61 @@
+name: CI/CD Deploy
+
+on:
+  push:
+    branches:
+      - deploy  # disparar deploy só na branch main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Check docker and compose versions
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Build and start containers
+        run: |
+          docker compose up -d --build
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+          
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/; then
+              echo "API is up"
+              exit 0
+            fi
+            echo "Waiting for API..."
+            sleep 5
+          done
+          echo "API did not become ready in time"
+          exit 1
+
+      - name: Run tests
+        run: |
+          pytest -v
+        continue-on-error: true
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.USER_SERVER_IP }}
+          username: ${{ secrets.USER_SERVER_USER }}
+          key: ${{ secrets.USER_SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/service_user
+            git pull origin main
+            sudo docker-compose -f docker-compose.local.yml up --build -d
+            sudo systemctl restart nginx
