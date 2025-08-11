@@ -3,17 +3,11 @@ name: CI/CD Deploy
 on:
   push:
     branches:
-      - main  # disparar deploy só na branch main
+      - deploy  # disparar deploy só na branch main
 
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      BASE_URL: ${{ secrets.BASE_URL }}
-      ALGORITHM: ${{ secrets.ALGORITHM }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,7 +32,7 @@ jobs:
       - name: Wait for API to be ready
         run: |
           for i in {1..30}; do
-            if curl -s http://localhost:8000/metrics; then
+            if curl -s http://localhost:8000/; then
               echo "API is up"
               exit 0
             fi
