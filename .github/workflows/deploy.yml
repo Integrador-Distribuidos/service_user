@@ -31,7 +31,16 @@ jobs:
           GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
           EOF
-
+      - name: Criar arquivo .env com variáveis de ambiente
+        run: |
+          cat > .env << EOF
+          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_DEBUG=True
+          DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          EOF
       - name: Criar arquivo .envs/.local/.postgres com variáveis do banco
         run: |
           mkdir -p .envs/.local
