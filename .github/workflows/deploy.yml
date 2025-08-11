@@ -3,7 +3,7 @@ name: CI/CD Deploy
 on:
   push:
     branches:
-      - deploy  # disparar deploy só na branch main
+      - deploy  # disparar deploy só na branch deploy (ou main, ajuste se quiser)
 
 jobs:
   build-test-deploy:
@@ -20,15 +20,39 @@ jobs:
           docker --version
           docker compose version
 
+      - name: Criar arquivo .envs/.local/.django com variáveis de ambiente
+        run: |
+          mkdir -p .envs/.local
+          cat > .envs/.local/.django << EOF
+          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_DEBUG=True
+          DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          EOF
+
+      - name: Criar arquivo .envs/.local/.postgres com variáveis do banco
+        run: |
+          mkdir -p .envs/.local
+          cat > .envs/.local/.postgres << EOF
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+          EOF
+
       - name: Build and start containers
         run: |
-          docker compose up -d --build
+          docker compose -f docker-compose.local.yml up -d --build
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
-          
+
       - name: Wait for API to be ready
         run: |
           for i in {1..30}; do
