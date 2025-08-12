@@ -279,7 +279,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8001",
     "https://stock2sell.shop",
     "http://stock2sell.shop",
-    "https://integrador-distribuidos.github.io"
+    "https://integrador-distribuidos.github.io",
     "https://stock2sell.vercel.app/",
 ]
 
