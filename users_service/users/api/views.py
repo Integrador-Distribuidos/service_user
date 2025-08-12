@@ -3,6 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from users_service.users.models import User
 from .serializers import UserSerializer, UserCreateSerializer
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from .commands.make_admin_command import MakeAdminCommand
+from .commands.update_cpf_command import UpdateCpfCommand
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -26,31 +30,24 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["patch"], permission_classes=[permissions.IsAuthenticated])
     def make_admin(self, request, pk=None):
         user = self.get_object()
+        
+        try:
+            command = MakeAdminCommand(user, request.user)
+            updated_user = command.execute()
+        except (PermissionDenied, ValidationError) as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        if user != request.user:
-            return Response({"detail": "Você não pode modificar o tipo de outro usuário."}, status=status.HTTP_403_FORBIDDEN)
-
-        if user.type != User.UserType.CLIENT:
-            return Response({"detail": "Este usuário já é admin."}, status=status.HTTP_400_BAD_REQUEST)
-
-        user.type = User.UserType.ADMIN
-        user.save()
-
-        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response(UserSerializer(updated_user).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["patch"], permission_classes=[permissions.IsAuthenticated])
     def update_cpf(self, request, pk=None):
         user = self.get_object()
-
-        if user.cpf:
-            return Response({"detail": "CPF já preenchido."}, status=status.HTTP_400_BAD_REQUEST)
-
         cpf = request.data.get("cpf")
-        if not cpf or len(cpf) != 11:
-            return Response({"detail": "CPF inválido."}, status=status.HTTP_400_BAD_REQUEST)
 
-        user.cpf = cpf
-        user.save()
+        try:
+            command = UpdateCpfCommand(user, cpf)
+            updated_user = command.execute()
+        except ValidationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "CPF atualizado com sucesso!"}, status=status.HTTP_200_OK)
-    
