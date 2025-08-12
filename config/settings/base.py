@@ -280,7 +280,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://stock2sell.shop",
     "http://stock2sell.shop",
     "https://integrador-distribuidos.github.io",
-    "https://stock2sell.vercel.app/",
+    "https://stock2sell.vercel.app",
 ]
 
 # Permitir credenciais se necessário (ex: autenticação com cookies)

@@ -14,7 +14,7 @@ SECRET_KEY = env(
     default="3xEXBKCTh0Agbi7vipPcKAlDN6jjKSg2K7DJ5BVzNDVx30BKHFUYkxGQK46563Cd",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "integrador-distribuidos.github.io", "stock2sell.shop", "https://stock2sell.vercel.app/"]  # noqa: S104
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "integrador-distribuidos.github.io", "stock2sell.shop", "stock2sell.vercel.app"]  # noqa: S104
 # CACHES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#caches
