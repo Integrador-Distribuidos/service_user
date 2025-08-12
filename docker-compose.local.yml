@@ -20,6 +20,8 @@ services:
     ports:
       - '8001:8000'
     command: /start
+    networks:
+      - shared_network
 
   postgres:
     build:
@@ -32,6 +34,8 @@ services:
       - users_service_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
+    networks:
+      - shared_network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -46,3 +50,9 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    driver: bridge
