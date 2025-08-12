@@ -21,7 +21,9 @@ ALLOWED_HOSTS = [
     "integrador-distribuidos.github.io", 
     "stock2sell.shop", 
     "stock2sell.vercel.app",
-    "server-users.stock2sell.shop",]  # noqa: S104
+    "server-users.stock2sell.shop",
+    "56.125.150.61"
+    ]  # noqa: S104
 # CACHES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#caches
